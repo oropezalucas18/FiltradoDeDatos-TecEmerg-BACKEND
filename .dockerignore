@@ -1,0 +1,10 @@
+.venv
+__pycache__
+*.pyc
+.env
+.git
+.gitignore
+.idea
+.vscode
+.DS_Store
+node_modules

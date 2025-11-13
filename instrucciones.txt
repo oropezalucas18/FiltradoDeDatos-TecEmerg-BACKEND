@@ -1,0 +1,10 @@
+# 1) Variables de entorno          
+# Crear un archivo .env 
+# Pegar la plantilla de .env.example
+# Modificarlo con credenciales verdaderas 
+
+# 2) Levantar entorno de desarrollo (hot-reload), tienes que estar en la raiz del proyecto
+docker compose up --build api
+
+# 3) Probar
+# Abrir http://localhost:8000
