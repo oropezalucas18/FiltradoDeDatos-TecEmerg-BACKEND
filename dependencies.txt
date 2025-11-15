@@ -1,2 +1,10 @@
 fastapi[standard]
 uvicorn
+pandas
+numpy
+firebase-admin
+supabase
+python-dotenv
+pydantic
+openpyxl
+pyspark
