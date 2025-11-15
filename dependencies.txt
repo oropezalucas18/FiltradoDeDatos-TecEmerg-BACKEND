@@ -8,3 +8,16 @@ python-dotenv
 pydantic
 openpyxl
 pyspark
+
+# Seguridad / Autenticación
+bcrypt
+PyJWT
+
+# RabbitMQ
+pika
+
+# Reportes (PDF + análisis avanzado)
+matplotlib
+scipy
+statsmodels
+fpdf2
