@@ -22,3 +22,7 @@ class AuthService:
             "exp": datetime.utcnow() + timedelta(hours=10)
         }
         return jwt.encode(payload, settings.JWT_SECRET, algorithm="HS256")
+    
+    @staticmethod
+    def decode_token(token: str):
+        return jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
