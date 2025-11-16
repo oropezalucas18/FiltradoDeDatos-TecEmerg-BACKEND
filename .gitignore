@@ -1,5 +1,36 @@
-.venv/
+# Python
 __pycache__/
 *.pyc
+
+# Environment
 .env
-app/adapters/db/migrations/
+*.env
+!*.env.example
+
+# Firebase credentials
+firebase_credentials.json
+*.key
+*.pem
+*.p12
+
+# Supabase keys
+supabase_credentials.json
+
+# Docker
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Byte-compiled / cache
+*.pyo
+*.pyd
+.pytest_cache/
+
+# macOS
+.DS_Store
+
+# Spark temp
+tmp/
+temp/

@@ -3,6 +3,10 @@
 # Pegar la plantilla de .env.example
 # Modificarlo con credenciales verdaderas 
 
+# 2) Credenciales de Firebase
+# Colocar en la raiz del proyecto el JSON de las credenciales
+# Renombrar el archivo a: firebase_credentials.json
+
 # 2) Levantar el entorno
 # Entorno de desarrollo (hot-reload), tienes que estar en la carpeta deployment
 docker compose --profile dev up --build
