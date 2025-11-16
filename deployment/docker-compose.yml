@@ -16,6 +16,8 @@ services:
       - ..:/app:delegated
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     profiles: ["dev"]
+    environment:
+      - SPARK_HOME=/opt/spark
 
   api-prod:
     build:
@@ -39,6 +41,8 @@ services:
         condition: service_healthy
     restart: always
     profiles: ["dev", "prod"]
+    environment:
+      - SPARK_HOME=/opt/spark
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -49,6 +53,9 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
       - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 5s

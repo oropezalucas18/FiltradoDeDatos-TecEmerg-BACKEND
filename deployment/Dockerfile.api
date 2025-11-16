@@ -1,22 +1,44 @@
 FROM python:3.12-slim
 
-# Evitar .pyc y buffering
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+# =========================
+# 🔹 Instalar dependencias del sistema
+# =========================
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openjdk-11-jre-headless \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+
+# =========================
+# 🔹 Variables de Spark
+# =========================
+ENV SPARK_VERSION=3.5.1
+ENV HADOOP_VERSION=3
+ENV SPARK_HOME=/opt/spark
+ENV PATH=$PATH:$SPARK_HOME/bin
+
+# =========================
+# 🔹 Instalar Spark
+# =========================
+RUN curl -L \
+    https://dlcdn.apache.org/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
+    -o /tmp/spark.tgz \
+    && mkdir -p ${SPARK_HOME} \
+    && tar -xzf /tmp/spark.tgz -C ${SPARK_HOME} --strip-components=1 \
+    && rm /tmp/spark.tgz
+
+# =========================
+# 🔹 Instalar dependencias Python
+# =========================
 WORKDIR /app
-
-# Instalar deps del sistema si hiciera falta (ej. psycopg con libpq)
-# RUN apt-get update && apt-get install -y --no-install-recommends build-essential libpq-dev && rm -rf /var/lib/apt/lists/*
-
 COPY dependencies.txt .
 RUN pip install --no-cache-dir -r dependencies.txt
 
-# Copiamos el código
+# Copiar proyecto
 COPY . .
 
-# Puerto de la API
 EXPOSE 8000
 
-# Comando por defecto (prod). En dev lo sobreescribimos con compose.
+# Iniciar API (prod)
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
