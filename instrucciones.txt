@@ -3,8 +3,11 @@
 # Pegar la plantilla de .env.example
 # Modificarlo con credenciales verdaderas 
 
-# 2) Levantar entorno de desarrollo (hot-reload), tienes que estar en la raiz del proyecto
-docker compose up --build api
+# 2) Levantar el entorno
+# Entorno de desarrollo (hot-reload), tienes que estar en la carpeta deployment
+docker compose --profile dev up --build
+# Entorno de produccion sin hot-reload y en modo detached
+docker compose --profile prod up --build -d
 
 # 3) Probar
 # Abrir http://localhost:8000
