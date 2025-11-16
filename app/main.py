@@ -11,7 +11,7 @@ from app.adapters.input.fastapi.reports_controller import router as reports_rout
 # Adapters
 from app.adapters.output.firebase_repository import FirebaseRepository
 from app.adapters.output.supabase_repository import SupabaseRepository
-from app.adapters.output.pandas_file_parser import PandasFileParser
+from app.adapters.output.spark_file_parser import SparkFileParser
 from app.adapters.output.rabbitmq_queue import RabbitMQQueue
 from app.adapters.output.firebase_user_repository import FirebaseUserRepository
 
@@ -55,7 +55,7 @@ firebase_repo = FirebaseRepository()
 supabase_repo = SupabaseRepository()
 user_repo = FirebaseUserRepository()
 queue = RabbitMQQueue()
-parser = PandasFileParser()
+parser = SparkFileParser()
 
 # ====================================
 #  OVERRIDES (DEPENDENCY INJECTION)

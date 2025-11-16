@@ -23,6 +23,8 @@ from app.adapters.output.supabase_repository import SupabaseRepository
 # Config
 from app.infrastructure.config import settings
 
+from app.domain.entities.sensor_data import SensorData
+
 
 # ===========================
 #  CONEXIÓN RABBITMQ
