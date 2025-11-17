@@ -39,3 +39,21 @@ if connection:
         print("✔ RabbitMQ inicializado desde API")
     except Exception as e:
         print("❌ Error creando canal RabbitMQ:", e)
+
+
+def get_rabbitmq_channel():
+    global channel
+
+    if channel and channel.is_open:
+        return channel
+
+    # si se cayó la conexión, recrearla
+    conn = _create_connection()
+    if not conn:
+        raise Exception("RabbitMQ no está disponible")
+
+    ch = conn.channel()
+    ch.queue_declare(queue=settings.RABBITMQ_QUEUE, durable=True)
+
+    print("✔ Nuevo canal RabbitMQ creado desde worker")
+    return ch

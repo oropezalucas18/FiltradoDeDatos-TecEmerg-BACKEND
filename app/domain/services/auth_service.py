@@ -1,28 +1,23 @@
-import bcrypt
-import jwt
 from datetime import datetime, timedelta
+from jose import jwt
+from passlib.context import CryptContext
 from app.infrastructure.config import settings
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class AuthService:
 
     @staticmethod
-    def verify_password(password, hashed):
-        return bcrypt.checkpw(password.encode(), hashed.encode())
+    def hash_password(password: str) -> str:
+        return pwd_context.hash(password)
 
     @staticmethod
-    def hash_password(password):
-        return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    def verify_password(password: str, hashed: str) -> bool:
+        return pwd_context.verify(password, hashed)
 
     @staticmethod
-    def generate_token(user):
-        payload = {
-            "sub": user.id,
-            "email": user.email,
-            "role": user.role,
-            "exp": datetime.utcnow() + timedelta(hours=10)
-        }
-        return jwt.encode(payload, settings.JWT_SECRET, algorithm="HS256")
-    
-    @staticmethod
-    def decode_token(token: str):
-        return jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
+    def create_access_token(data: dict):
+        to_encode = data.copy()
+        expire = datetime.utcnow() + timedelta(minutes=int(settings.ACCESS_TOKEN_EXPIRE_MINUTES))
+        to_encode.update({"exp": expire})
+        return jwt.encode(to_encode, settings.SECRET_KEY, algorithm="HS256")

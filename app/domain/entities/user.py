@@ -1,11 +1,13 @@
-from pydantic import BaseModel
-from typing import Optional
+from dataclasses import dataclass
+from datetime import datetime
 
-class User(BaseModel):
+@dataclass
+class User:
     id: str
     email: str
+    password: str
+    names: str
+    lastnames: str
     role: str
-    password_hash: str
-    creado_por: Optional[str]
-    creado_el: Optional[str]
-    activo: bool = True
+    status: str = "enabled"
+    created_at: datetime = None

@@ -1,17 +1,23 @@
 from abc import ABC, abstractmethod
-from typing import Optional
-from app.domain.entities.user import User
 
 class UserRepositoryPort(ABC):
 
     @abstractmethod
-    def get_by_email(self, email: str) -> Optional[User]:
-        pass
+    def register(self, email, password, names, lastnames, role): pass
 
     @abstractmethod
-    def save(self, user: User):
-        pass
+    def login(self, email, password): pass
 
     @abstractmethod
-    def get_by_id(self, user_id: str) -> Optional[User]:
-        pass
+    def get_by_id(self, user_id: str): pass
+
+    @abstractmethod
+    def list_users(self): pass
+
+    @abstractmethod
+    def disable_user(self, user_id: str): pass
+
+    @abstractmethod
+    def update_role(self, user_id: str, new_role: str): pass
+
+    

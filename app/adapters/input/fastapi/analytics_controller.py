@@ -1,21 +1,24 @@
 from fastapi import APIRouter, Depends, HTTPException
 from app.application.analytics_usecase import AnalyticsUseCase
+from app.infrastructure.query_repository import QueryRepository
 from app.dependencies import auth_guard
 
 router = APIRouter(prefix="/analytics")
 
-# Roles con permiso de análisis:
 PERMISSIONS = ["ANALYTICS", "REPORTS"]
 
-@router.get("/{tipo}/stats")
+
+@router.get("/{tipo}/stats", response_model=None)
 def basic_stats(
     tipo: str,
     limit: int = 200,
     user=Depends(auth_guard(PERMISSIONS)),
-    usecase: AnalyticsUseCase = Depends()
 ):
     if tipo not in ["CO2", "Sonido", "Soterrado"]:
         raise HTTPException(status_code=400, detail="Tipo inválido")
+
+    repo = QueryRepository()
+    usecase = AnalyticsUseCase(repo)
 
     return {
         "sensor": tipo,
@@ -23,16 +26,18 @@ def basic_stats(
     }
 
 
-@router.get("/{tipo}/timeseries/{field}")
+@router.get("/{tipo}/timeseries/{field}", response_model=None)
 def timeseries(
     tipo: str,
     field: str,
     limit: int = 200,
     user=Depends(auth_guard(PERMISSIONS)),
-    usecase: AnalyticsUseCase = Depends()
 ):
     if tipo not in ["CO2", "Sonido", "Soterrado"]:
         raise HTTPException(status_code=400, detail="Tipo inválido")
+
+    repo = QueryRepository()
+    usecase = AnalyticsUseCase(repo)
 
     ts = usecase.time_series(tipo, field, limit)
 

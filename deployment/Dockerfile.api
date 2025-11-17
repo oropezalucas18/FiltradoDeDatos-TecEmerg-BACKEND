@@ -4,11 +4,12 @@ FROM python:3.12-slim
 # 🔹 Instalar dependencias del sistema
 # =========================
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    openjdk-11-jre-headless \
+    openjdk-21-jre \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+ENV PATH="$JAVA_HOME/bin:$PATH"
 
 # =========================
 # 🔹 Variables de Spark
@@ -22,10 +23,10 @@ ENV PATH=$PATH:$SPARK_HOME/bin
 # 🔹 Instalar Spark
 # =========================
 RUN curl -L \
-    https://dlcdn.apache.org/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
+    https://archive.apache.org/dist/spark/spark-3.5.1/spark-3.5.1-bin-hadoop3.tgz \
     -o /tmp/spark.tgz \
-    && mkdir -p ${SPARK_HOME} \
-    && tar -xzf /tmp/spark.tgz -C ${SPARK_HOME} --strip-components=1 \
+    && mkdir -p /opt/spark \
+    && tar -xzf /tmp/spark.tgz -C /opt/spark --strip-components=1 \
     && rm /tmp/spark.tgz
 
 # =========================

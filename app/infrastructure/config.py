@@ -1,53 +1,27 @@
 import os
-from dotenv import load_dotenv
+from pydantic_settings import BaseSettings
 
-# Cargar variables desde .env
-load_dotenv()
+class Settings(BaseSettings):
+    FIREBASE_CREDENTIALS_PATH: str
+    FIREBASE_PROJECT_ID: str = ""
 
+    SUPABASE_URL: str
+    SUPABASE_KEY: str
+    SUPABASE_BUCKET: str = "reportes"
 
-class Settings:
+    SECRET_KEY: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
 
-    # ============================
-    # JWT — Autenticación
-    # ============================
-    JWT_SECRET = os.getenv("JWT_SECRET", "changeme_supersecret")
-    JWT_ALGORITHM = "HS256"
+    RABBITMQ_HOST: str
+    RABBITMQ_USER: str
+    RABBITMQ_PASS: str
+    RABBITMQ_QUEUE: str
 
+    SPARK_HOME: str = "/opt/spark"
 
-    # ============================
-    # Firebase — Principal
-    # ============================
-    FIREBASE_CREDENTIALS = os.getenv("FIREBASE_CREDENTIALS")
+    ENV: str = "dev"
 
-    if not FIREBASE_CREDENTIALS:
-        raise Exception("FIREBASE_CREDENTIALS no está definido en .env")
-
-
-    # ============================
-    # Supabase — Backup + Storage
-    # ============================
-    SUPABASE_URL = os.getenv("SUPABASE_URL")
-    SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-
-    if not SUPABASE_URL or not SUPABASE_KEY:
-        raise Exception("SUPABASE_URL o SUPABASE_KEY no está definido en .env")
-
-    SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET", "reportes")  # bucket para PDFs
-
-
-    # ============================
-    # RabbitMQ — Ingesta
-    # ============================
-    RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
-    RABBITMQ_USER = os.getenv("RABBITMQ_USER", "guest")
-    RABBITMQ_PASS = os.getenv("RABBITMQ_PASS", "guest")
-    RABBITMQ_QUEUE = os.getenv("RABBITMQ_QUEUE", "sensor_ingest")
-
-
-    # ============================
-    # 🟩 Modo de ejecución
-    # ============================
-    ENV = os.getenv("ENV", "development")  # development | production
-
+    class Config:
+        env_file = ".env"
 
 settings = Settings()

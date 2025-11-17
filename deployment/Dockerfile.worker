@@ -1,40 +1,41 @@
 FROM python:3.12-slim
 
-# =========================
-# 🔹 Instalar dependencias del sistema
-# =========================
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# Directorio dentro del contenedor
+WORKDIR /app
+
+# Java para Spark
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    openjdk-11-jre-headless \
+    openjdk-21-jre \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+ENV PATH="$JAVA_HOME/bin:$PATH"
 
-# =========================
-# 🔹 Variables de Spark
-# =========================
-ENV SPARK_VERSION=3.5.1
+# Spark
+ENV SPARK_VERSION=3.5.0
 ENV HADOOP_VERSION=3
 ENV SPARK_HOME=/opt/spark
-ENV PATH=$PATH:$SPARK_HOME/bin
+ENV PATH="$SPARK_HOME/bin:$PATH"
 
-# =========================
-# 🔹 Instalar Spark
-# =========================
-RUN curl -L \
-    https://dlcdn.apache.org/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
-    -o /tmp/spark.tgz \
-    && mkdir -p ${SPARK_HOME} \
-    && tar -xzf /tmp/spark.tgz -C ${SPARK_HOME} --strip-components=1 \
-    && rm /tmp/spark.tgz
+RUN mkdir -p /opt/spark && \
+    curl -L "https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" \
+    -o spark.tgz && \
+    tar -xzf spark.tgz -C /opt/spark --strip-components=1 && \
+    rm spark.tgz
 
-# =========================
-# 🔹 Instalar dependencias Python
-# =========================
-WORKDIR /app
-COPY dependencies.txt .
-RUN pip install --no-cache-dir -r dependencies.txt
+# -------- CORRECCIÓN CRÍTICA -------------
+# Copiar TODO el proyecto (contexto actual ES la raíz)
+COPY . /app/
+# ------------------------------------------
 
-COPY . .
+# Instalar dependencias
+RUN pip install --no-cache-dir -r /app/dependencies.txt
 
-CMD ["python", "worker/worker_process.py"]
+# Para que Python detecte el paquete app/
+ENV PYTHONPATH="/app"
+
+CMD ["python", "-u", "worker/worker_process.py"]

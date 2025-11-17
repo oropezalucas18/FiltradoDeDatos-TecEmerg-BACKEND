@@ -6,12 +6,15 @@ firebase-admin
 supabase
 python-dotenv
 pydantic
+pydantic-settings
 openpyxl
 pyspark
 
 # Seguridad / Autenticación
 bcrypt
 PyJWT
+python-jose[cryptography]
+passlib[bcrypt]
 
 # RabbitMQ
 pika
@@ -21,3 +24,6 @@ matplotlib
 scipy
 statsmodels
 fpdf2
+
+passlib
+bcrypt==4.1.1

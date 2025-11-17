@@ -76,8 +76,12 @@ class ProcessMessageUseCase:
             )
 
             self.firebase_repo.save(sensor_data)
-            self.supabase_repo.save({
-                "tipo": tipo,
-                "valores": row,
-                "timestamp": row.get("timestamp")
-            })
+
+            if tipo == "CO2":
+                self.supabase_repo.save_co2_fixed(row)
+
+            elif tipo == "Sonido":
+                self.supabase_repo.save_sonido_fixed(row)
+
+            elif tipo == "Soterrado":
+                self.supabase_repo.save_soterrado_fixed(row)

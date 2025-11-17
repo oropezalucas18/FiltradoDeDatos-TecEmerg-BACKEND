@@ -1,33 +1,38 @@
-from uuid import uuid4
 from app.domain.services.auth_service import AuthService
-from app.domain.entities.user import User
+from app.adapters.output.supabase_repository import SupabaseRepository
 
 class AuthUseCase:
 
     def __init__(self, user_repo):
         self.user_repo = user_repo
+        self.supabase = SupabaseRepository()
 
-    def login(self, email: str, password: str):
-        user = self.user_repo.get_by_email(email)
-        if not user:
-            return None
+    def register(self, email, password, names, lastnames, role):
 
-        if not AuthService.verify_password(password, user.password_hash):
-            return None
+        # Crear en Firebase + Firestore
+        user_id = self.user_repo.register(email, password, names, lastnames, role)
 
-        token = AuthService.generate_token(user)
-        return token, user
-
-    def register(self, email: str, password: str, role: str, created_by: str):
-        hashed = AuthService.hash_password(password)
-        new_user = User(
-            id=str(uuid4()),
+        # Backup en Supabase
+        hashed = self.user_repo.hash_password(password)
+        self.supabase.save_user_backup(
             email=email,
+            hashed_password=hashed,
+            names=names,
+            lastnames=lastnames,
             role=role,
-            password_hash=hashed,
-            creado_por=created_by,
-            creado_el="",
-            activo=True
+            status="enabled"
         )
-        self.user_repo.save(new_user)
-        return new_user
+
+        return {"user_id": user_id}
+
+    def login(self, email, password):
+        return self.user_repo.login(email, password)
+    
+    def disable_user(self, user_id: str):
+        return self.user_repo.disable_user(user_id)
+
+    def list_users(self):
+        return self.user_repo.list_users()
+
+    def update_role(self, user_id: str, new_role: str):
+        return self.user_repo.update_role(user_id, new_role)

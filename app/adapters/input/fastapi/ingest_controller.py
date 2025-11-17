@@ -1,40 +1,36 @@
-from fastapi import APIRouter, UploadFile, Depends, HTTPException
+from fastapi import APIRouter, UploadFile, Depends, HTTPException, File
 from app.application.ingest_usecase import IngestUseCase
 from app.dependencies import auth_guard
+from app.dependencies import get_ingest_usecase
 
 router = APIRouter(prefix="/ingest")
 
 # Solo OPERADOR o ADMIN pueden ingresar datos
 PERMISSIONS = ["INGEST"]
 
-@router.post("/{tipo}")
+@router.post("/{tipo}", response_model=None)
 async def ingest(
     tipo: str,
-    file: UploadFile,
-    user=Depends(auth_guard(PERMISSIONS)),
-    usecase: IngestUseCase = Depends()
+    file: UploadFile = File(...),
+    usecase: IngestUseCase = Depends(get_ingest_usecase)
 ):
     """
-    Endpoint principal para subir archivos de sensores.
-    Solo pueden acceder OPERADOR y ADMIN.
+    Sube un archivo .csv / .xlsx / .txt de un sensor.
+    Lo parsea con Spark y lo manda a RabbitMQ.
     """
 
-    # Validamos tipo de sensor
     if tipo not in ["CO2", "Sonido", "Soterrado"]:
         raise HTTPException(status_code=400, detail="Tipo de sensor inválido")
 
-    # Extraer filas con Pandas o Spark
     try:
         rows = usecase.extract_rows(file)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error procesando archivo: {e}")
 
-    # Enviar a RabbitMQ
-    usecase.publish_to_queue(tipo, rows, user.email)
+    usecase.publish_to_queue(tipo, rows, "system@test.com")
 
     return {
         "status": "queued",
         "rows": len(rows),
-        "sensor": tipo,
-        "mensaje": "Archivo enviado al worker para procesamiento"
+        "sensor": tipo
     }
