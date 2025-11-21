@@ -7,37 +7,31 @@ class AnalyticsUseCase:
         self.repo = repo
 
     def basic_stats(self, tipo: str, limit: int = 200):
-        """
-        Devuelve estadísticas simples:
-        - promedio
-        - mínimo
-        - máximo
-        - desvío estándar
-        """
         data = self.repo.get_last(tipo, limit)
         if not data:
             return {}
 
-        df = pd.DataFrame([d["valores"] for d in data])
+        df = pd.DataFrame(data)
 
-        stats = df.describe().to_dict()
-        return stats
+        # eliminamos campos no numéricos
+        df = df.select_dtypes(include=["number"])
+
+        if df.empty:
+            return {}
+
+        return df.describe().to_dict()
 
     def time_series(self, tipo: str, field: str, limit: int = 200):
-        """
-        Devuelve una serie temporal de un campo específico.
-        Ejemplo: tendencia de CO2, ruido, etc.
-        """
         data = self.repo.get_last(tipo, limit)
         if not data:
             return []
 
-        records = []
+        series = []
         for d in data:
-            valor = d["valores"].get(field)
-            timestamp = d.get("timestamp")
+            if field in d:
+                series.append({
+                    "timestamp": d.get("_received_at") or d.get("time"),
+                    "valor": d[field]
+                })
 
-            if valor is not None and timestamp:
-                records.append({"timestamp": timestamp, "valor": valor})
-
-        return records
+        return series

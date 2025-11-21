@@ -1,3 +1,4 @@
+from app.adapters.output.firebase_repository import FirebaseRepository
 from fastapi import APIRouter, Depends, HTTPException
 from app.application.analytics_usecase import AnalyticsUseCase
 from app.infrastructure.query_repository import QueryRepository
@@ -5,25 +6,19 @@ from app.dependencies import auth_guard
 
 router = APIRouter(prefix="/analytics")
 
-PERMISSIONS = ["ANALYTICS", "REPORTS"]
+PERMISSIONS = ["ANALYTICS", "REPORTS","ADMIN"]
 
 
-@router.get("/{tipo}/stats", response_model=None)
-def basic_stats(
-    tipo: str,
-    limit: int = 200,
-    user=Depends(auth_guard(PERMISSIONS)),
-):
-    if tipo not in ["CO2", "Sonido", "Soterrado"]:
+@router.get("/{tipo}/stats")
+def basic_stats(tipo: str, limit: int = 200, user=Depends(auth_guard(PERMISSIONS))):
+    tipo = tipo.lower()
+    if tipo not in ["co2", "sonido", "soterrado"]:
         raise HTTPException(status_code=400, detail="Tipo inválido")
 
-    repo = QueryRepository()
+    repo = FirebaseRepository()
     usecase = AnalyticsUseCase(repo)
 
-    return {
-        "sensor": tipo,
-        "stats": usecase.basic_stats(tipo, limit)
-    }
+    return usecase.basic_stats(tipo, limit)
 
 
 @router.get("/{tipo}/timeseries/{field}", response_model=None)
@@ -33,15 +28,18 @@ def timeseries(
     limit: int = 200,
     user=Depends(auth_guard(PERMISSIONS)),
 ):
-    if tipo not in ["CO2", "Sonido", "Soterrado"]:
+    tipo = tipo.lower()
+
+    if tipo not in ["co2", "sonido", "soterrado"]:
         raise HTTPException(status_code=400, detail="Tipo inválido")
 
-    repo = QueryRepository()
+    # 🔥 Ahora usamos FirebaseRepository en vez de QueryRepository
+    repo = FirebaseRepository()
     usecase = AnalyticsUseCase(repo)
 
     ts = usecase.time_series(tipo, field, limit)
 
-    if len(ts) == 0:
+    if not ts:
         raise HTTPException(status_code=404, detail="No hay datos suficientes")
 
     return {

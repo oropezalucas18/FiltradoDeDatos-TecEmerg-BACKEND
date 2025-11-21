@@ -13,7 +13,7 @@ def list_reports(
     user=Depends(auth_guard(PERMISSIONS)),
     usecase: ReportsUseCase = Depends()
 ):
-    if tipo not in ["CO2", "Sonido", "Soterrado"]:
+    if tipo not in ["co2", "sonido", "soterrado"]:
         raise HTTPException(status_code=400, detail="Tipo inválido")
 
     try:
