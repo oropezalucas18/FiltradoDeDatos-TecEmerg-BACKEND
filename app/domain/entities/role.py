@@ -1,0 +1,8 @@
+ROLES = ["ADMIN", "ANALISTA", "OPERADOR", "INVITADO"]
+
+PERMISSIONS = {
+    "ADMIN": ["*"],
+    "ANALISTA": ["REPORTS", "ANALYTICS", "QUERY"],
+    "OPERADOR": ["INGEST", "QUERY"],
+    "INVITADO": ["QUERY"]
+}

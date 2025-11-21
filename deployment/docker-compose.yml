@@ -1,0 +1,69 @@
+version: "3.9"
+
+services:
+
+  api:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.api
+    env_file: ../.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ..:/app:delegated
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    profiles: ["dev"]
+    environment:
+      - SPARK_HOME=/opt/spark
+
+  api-prod:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.api
+    env_file: ../.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    profiles: ["prod"]
+
+  worker:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.worker
+    env_file: ../.env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: always
+    profiles: ["dev", "prod"]
+    environment:
+      - SPARK_HOME=/opt/spark
+    volumes:
+      - ..:/app:delegated
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq_gamc
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    profiles: ["dev", "prod"]
+
+volumes:
+  rabbitmq_data:
